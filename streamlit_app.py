@@ -1,14 +1,18 @@
 import streamlit as st
 
-# Simulated authentication (for demonstration purposes)
+# Simulated authentication
 def authenticate_user():
-    username = st.sidebar.text_input("Username")
-    password = st.sidebar.text_input("Password", type="password")
-    if st.sidebar.button("Login"):
-        if username == "admin" and password == "admin":
-            return "Administrator"
-        else:
-            return "Visitor"
+    user_role = st.sidebar.selectbox("Choose your role", ["Visitor", "Administrator"])
+    if user_role == "Administrator":
+        password = st.sidebar.text_input("Password", type="password")
+        if st.sidebar.button("Login"):
+            if password == "admin":
+                return "Administrator"
+            else:
+                st.sidebar.error("Invalid password")
+                return None
+    else:
+        return "Visitor"
     return None
 
 # Add new research area
@@ -71,7 +75,7 @@ def main():
         st.info("File upload is available for administrators only.")
 
     else:
-        st.sidebar.warning("Please log in to access the system.")
+        st.sidebar.warning("Please choose your role to access the system.")
 
 if __name__ == "__main__":
     main()
