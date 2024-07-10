@@ -1,6 +1,6 @@
 import streamlit as st
 
-# Simulated authentication
+# Simulated authentication (for demonstration purposes)
 def authenticate_user():
     user_role = st.sidebar.selectbox("Choose your role", ["Visitor", "Administrator"])
     if user_role == "Administrator":
@@ -33,6 +33,20 @@ def add_researcher(researchers):
             st.success(f"Added new researcher: {new_researcher}")
     return researchers
 
+# Tag files with areas and researchers
+def tag_files(areas, researchers):
+    selected_areas = st.multiselect("Select Research Areas", areas)
+    selected_researchers = st.multiselect("Select Researchers", researchers)
+    uploaded_files = st.file_uploader("Choose a file", accept_multiple_files=True)
+    if st.button("Upload"):
+        if uploaded_files:
+            for uploaded_file in uploaded_files:
+                st.write(f"Uploaded file: {uploaded_file.name}")
+                st.write(f"Tagged with areas: {selected_areas}")
+                st.write(f"Tagged with researchers: {selected_researchers}")
+        else:
+            st.warning("Please upload at least one file.")
+
 # Main application
 def main():
     st.title("Research Management System")
@@ -56,12 +70,9 @@ def main():
         st.subheader("Available Researchers")
         st.write(researchers)
 
-        # File upload
-        st.header("Upload Files")
-        uploaded_files = st.file_uploader("Choose a file", accept_multiple_files=True)
-        if uploaded_files:
-            for uploaded_file in uploaded_files:
-                st.write("Uploaded file:", uploaded_file.name)
+        # File upload with tagging
+        st.header("Upload and Tag Files")
+        tag_files(research_areas, researchers)
 
     elif user_role == "Visitor":
         st.sidebar.info("Logged in as Visitor")
@@ -71,8 +82,8 @@ def main():
         st.header("Researchers")
         st.write(["Yili Liu"])
 
-        st.header("Upload Files")
-        st.info("File upload is available for administrators only.")
+        st.header("Upload and Tag Files")
+        st.info("File upload and tagging is available for administrators only.")
 
     else:
         st.sidebar.warning("Please choose your role to access the system.")
