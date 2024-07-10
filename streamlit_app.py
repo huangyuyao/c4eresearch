@@ -1,6 +1,40 @@
 import streamlit as st
+import sqlite3
+from sqlite3 import Error
 
-# Simulated authentication (for demonstration purposes)
+# Create database connection and tables
+def create_connection():
+    conn = None
+    try:
+        conn = sqlite3.connect('research_management.db')
+    except Error as e:
+        st.error(f"Error: {e}")
+    return conn
+
+def create_tables(conn):
+    try:
+        sql_create_areas_table = """CREATE TABLE IF NOT EXISTS areas (
+                                        id integer PRIMARY KEY,
+                                        name text NOT NULL
+                                    );"""
+        sql_create_researchers_table = """CREATE TABLE IF NOT EXISTS researchers (
+                                            id integer PRIMARY KEY,
+                                            name text NOT NULL
+                                        );"""
+        sql_create_files_table = """CREATE TABLE IF NOT EXISTS files (
+                                        id integer PRIMARY KEY,
+                                        name text NOT NULL,
+                                        areas text NOT NULL,
+                                        researchers text NOT NULL,
+                                        content blob NOT NULL
+                                    );"""
+        conn.execute(sql_create_areas_table)
+        conn.execute(sql_create_researchers_table)
+        conn.execute(sql_create_files_table)
+    except Error as e:
+        st.error(f"Error: {e}")
+
+# Authentication function
 def authenticate_user():
     if "authenticated" not in st.session_state:
         st.session_state.authenticated = None
@@ -18,71 +52,93 @@ def authenticate_user():
         st.session_state.authenticated = "Visitor"
 
 # Add new research area
-def add_research_area(areas):
+def add_research_area(conn):
     new_area = st.text_input("Add Research Area")
     if st.button("Add Area"):
-        if new_area and new_area not in areas:
-            areas.append(new_area)
-            st.success(f"Added new area: {new_area}")
-    return areas
+        if new_area:
+            try:
+                conn.execute("INSERT INTO areas (name) VALUES (?)", (new_area,))
+                conn.commit()
+                st.success(f"Added new area: {new_area}")
+            except Error as e:
+                st.error(f"Error: {e}")
 
 # Add new researcher
-def add_researcher(researchers):
+def add_researcher(conn):
     new_researcher = st.text_input("Add Researcher Name")
     if st.button("Add Researcher"):
-        if new_researcher and new_researcher not in researchers:
-            researchers.append(new_researcher)
-            st.success(f"Added new researcher: {new_researcher}")
-    return researchers
+        if new_researcher:
+            try:
+                conn.execute("INSERT INTO researchers (name) VALUES (?)", (new_researcher,))
+                conn.commit()
+                st.success(f"Added new researcher: {new_researcher}")
+            except Error as e:
+                st.error(f"Error: {e}")
 
 # Tag files with areas and researchers
-def tag_files(areas, researchers):
+def tag_files(conn, areas, researchers):
     selected_areas = st.multiselect("Select Research Areas", areas)
     selected_researchers = st.multiselect("Select Researchers", researchers)
     uploaded_files = st.file_uploader("Choose a file", accept_multiple_files=True)
     if st.button("Upload"):
         if uploaded_files:
             for uploaded_file in uploaded_files:
-                file_info = {
-                    "name": uploaded_file.name,
-                    "areas": selected_areas,
-                    "researchers": selected_researchers,
-                    "content": uploaded_file
-                }
-                st.session_state.uploaded_files.append(file_info)
-                st.write(f"Uploaded file: {uploaded_file.name}")
-                st.write(f"Tagged with areas: {selected_areas}")
-                st.write(f"Tagged with researchers: {selected_researchers}")
+                try:
+                    file_info = (
+                        uploaded_file.name,
+                        ','.join(selected_areas),
+                        ','.join(selected_researchers),
+                        uploaded_file.read()
+                    )
+                    conn.execute("INSERT INTO files (name, areas, researchers, content) VALUES (?, ?, ?, ?)", file_info)
+                    conn.commit()
+                    st.write(f"Uploaded file: {uploaded_file.name}")
+                    st.write(f"Tagged with areas: {selected_areas}")
+                    st.write(f"Tagged with researchers: {selected_researchers}")
+                except Error as e:
+                    st.error(f"Error: {e}")
         else:
             st.warning("Please upload at least one file.")
 
 # Display and filter uploaded files
-def display_and_filter_files():
+def display_and_filter_files(conn):
     st.header("Uploaded Files")
-    if "uploaded_files" in st.session_state and st.session_state.uploaded_files:
-        filter_area = st.multiselect("Filter by Research Areas", st.session_state.research_areas)
-        filter_researcher = st.multiselect("Filter by Researchers", st.session_state.researchers)
+    try:
+        cursor = conn.cursor()
+        cursor.execute("SELECT * FROM files")
+        files = cursor.fetchall()
+        if files:
+            filter_area = st.multiselect("Filter by Research Areas", [row[1] for row in cursor.execute("SELECT name FROM areas")])
+            filter_researcher = st.multiselect("Filter by Researchers", [row[1] for row in cursor.execute("SELECT name FROM researchers")])
 
-        filtered_files = [
-            file for file in st.session_state.uploaded_files
-            if (not filter_area or any(area in file["areas"] for area in filter_area)) and
-               (not filter_researcher or any(researcher in file["researchers"] for researcher in filter_researcher))
-        ]
+            filtered_files = [
+                file for file in files
+                if (not filter_area or any(area in file[2].split(',') for area in filter_area)) and
+                   (not filter_researcher or any(researcher in file[3].split(',') for researcher in filter_researcher))
+            ]
 
-        if filtered_files:
-            for file in filtered_files:
-                st.write(f"File name: {file['name']}")
-                st.write(f"Research Areas: {file['areas']}")
-                st.write(f"Researchers: {file['researchers']}")
-                st.download_button("Download file", file["content"], file["name"])
+            if filtered_files:
+                for file in filtered_files:
+                    st.write(f"File name: {file[1]}")
+                    st.write(f"Research Areas: {file[2]}")
+                    st.write(f"Researchers: {file[3]}")
+                    st.download_button("Download file", file[4], file[1])
+            else:
+                st.info("No files match the selected filters.")
         else:
-            st.info("No files match the selected filters.")
-    else:
-        st.info("No files uploaded yet.")
+            st.info("No files uploaded yet.")
+    except Error as e:
+        st.error(f"Error: {e}")
 
 # Main application
 def main():
     st.title("Research Management System")
+
+    conn = create_connection()
+    if conn is not None:
+        create_tables(conn)
+    else:
+        st.error("Error! Cannot create the database connection.")
 
     authenticate_user()
 
@@ -91,45 +147,41 @@ def main():
     if user_role == "Administrator":
         st.sidebar.success("Logged in as Administrator")
         
-        # Initialize session state for research areas, researchers, and uploaded files
-        if "research_areas" not in st.session_state:
-            st.session_state.research_areas = ["Cognitive", "Physical", "Other"]
-        if "researchers" not in st.session_state:
-            st.session_state.researchers = ["Yili Liu"]
-        if "uploaded_files" not in st.session_state:
-            st.session_state.uploaded_files = []
-
         # Research areas management
         st.header("Research Areas")
-        research_areas = add_research_area(st.session_state.research_areas)
-        st.session_state.research_areas = research_areas
+        add_research_area(conn)
+        areas = [row[1] for row in conn.execute("SELECT name FROM areas")]
         st.subheader("Available Research Areas")
-        st.write(st.session_state.research_areas)
+        st.write(areas)
 
         # Researchers management
         st.header("Researchers")
-        researchers = add_researcher(st.session_state.researchers)
-        st.session_state.researchers = researchers
+        add_researcher(conn)
+        researchers = [row[1] for row in conn.execute("SELECT name FROM researchers")]
         st.subheader("Available Researchers")
-        st.write(st.session_state.researchers)
+        st.write(researchers)
 
         # File upload with tagging
         st.header("Upload and Tag Files")
-        tag_files(st.session_state.research_areas, st.session_state.researchers)
+        tag_files(conn, areas, researchers)
 
         # Display and filter uploaded files
-        display_and_filter_files()
+        display_and_filter_files(conn)
 
     elif user_role == "Visitor":
         st.sidebar.info("Logged in as Visitor")
+        
+        areas = [row[1] for row in conn.execute("SELECT name FROM areas")]
+        researchers = [row[1] for row in conn.execute("SELECT name FROM researchers")]
+
         st.header("Research Areas")
-        st.write(["Cognitive", "Physical", "Other"])
+        st.write(areas)
 
         st.header("Researchers")
-        st.write(["Yili Liu"])
+        st.write(researchers)
 
         st.header("Uploaded Files")
-        display_and_filter_files()
+        display_and_filter_files(conn)
 
         st.header("Upload and Tag Files")
         st.info("File upload and tagging is available for administrators only.")
