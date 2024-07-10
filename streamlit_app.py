@@ -108,8 +108,8 @@ def display_and_filter_files(conn):
         cursor.execute("SELECT * FROM files")
         files = cursor.fetchall()
         if files:
-            filter_area = st.multiselect("Filter by Research Areas", [row[1] for row in cursor.execute("SELECT name FROM areas")])
-            filter_researcher = st.multiselect("Filter by Researchers", [row[1] for row in cursor.execute("SELECT name FROM researchers")])
+            filter_area = st.multiselect("Filter by Research Areas", [row[0] for row in conn.execute("SELECT name FROM areas")])
+            filter_researcher = st.multiselect("Filter by Researchers", [row[0] for row in conn.execute("SELECT name FROM researchers")])
 
             filtered_files = [
                 file for file in files
@@ -150,14 +150,14 @@ def main():
         # Research areas management
         st.header("Research Areas")
         add_research_area(conn)
-        areas = [row[1] for row in conn.execute("SELECT name FROM areas")]
+        areas = [row[0] for row in conn.execute("SELECT name FROM areas")]
         st.subheader("Available Research Areas")
         st.write(areas)
 
         # Researchers management
         st.header("Researchers")
         add_researcher(conn)
-        researchers = [row[1] for row in conn.execute("SELECT name FROM researchers")]
+        researchers = [row[0] for row in conn.execute("SELECT name FROM researchers")]
         st.subheader("Available Researchers")
         st.write(researchers)
 
@@ -171,8 +171,8 @@ def main():
     elif user_role == "Visitor":
         st.sidebar.info("Logged in as Visitor")
         
-        areas = [row[1] for row in conn.execute("SELECT name FROM areas")]
-        researchers = [row[1] for row in conn.execute("SELECT name FROM researchers")]
+        areas = [row[0] for row in conn.execute("SELECT name FROM areas")]
+        researchers = [row[0] for row in conn.execute("SELECT name FROM researchers")]
 
         st.header("Research Areas")
         st.write(areas)
