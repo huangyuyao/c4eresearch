@@ -2,18 +2,20 @@ import streamlit as st
 
 # Simulated authentication (for demonstration purposes)
 def authenticate_user():
+    if "authenticated" not in st.session_state:
+        st.session_state.authenticated = None
+
     user_role = st.sidebar.selectbox("Choose your role", ["Visitor", "Administrator"])
     if user_role == "Administrator":
         password = st.sidebar.text_input("Password", type="password")
         if st.sidebar.button("Login"):
             if password == "admin":
-                return "Administrator"
+                st.session_state.authenticated = "Administrator"
             else:
                 st.sidebar.error("Invalid password")
-                return None
+                st.session_state.authenticated = None
     else:
-        return "Visitor"
-    return None
+        st.session_state.authenticated = "Visitor"
 
 # Add new research area
 def add_research_area(areas):
@@ -51,28 +53,34 @@ def tag_files(areas, researchers):
 def main():
     st.title("Research Management System")
 
-    user_role = authenticate_user()
+    authenticate_user()
+
+    user_role = st.session_state.authenticated
 
     if user_role == "Administrator":
         st.sidebar.success("Logged in as Administrator")
         
         # Research areas management
         st.header("Research Areas")
-        research_areas = ["Cognitive", "Physical", "Other"]
-        research_areas = add_research_area(research_areas)
+        if "research_areas" not in st.session_state:
+            st.session_state.research_areas = ["Cognitive", "Physical", "Other"]
+        research_areas = add_research_area(st.session_state.research_areas)
+        st.session_state.research_areas = research_areas
         st.subheader("Available Research Areas")
-        st.write(research_areas)
+        st.write(st.session_state.research_areas)
 
         # Researchers management
         st.header("Researchers")
-        researchers = ["Yili Liu"]
-        researchers = add_researcher(researchers)
+        if "researchers" not in st.session_state:
+            st.session_state.researchers = ["Yili Liu"]
+        researchers = add_researcher(st.session_state.researchers)
+        st.session_state.researchers = researchers
         st.subheader("Available Researchers")
-        st.write(researchers)
+        st.write(st.session_state.researchers)
 
         # File upload with tagging
         st.header("Upload and Tag Files")
-        tag_files(research_areas, researchers)
+        tag_files(st.session_state.research_areas, st.session_state.researchers)
 
     elif user_role == "Visitor":
         st.sidebar.info("Logged in as Visitor")
