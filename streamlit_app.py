@@ -16,7 +16,7 @@ hide_streamlit_style = """
     </style>
 """
 st.markdown(hide_streamlit_style, unsafe_allow_html=True)
-
+st.sidebar.image('umlogo.png')
 
 # Create database connection and tables
 def create_connection():
