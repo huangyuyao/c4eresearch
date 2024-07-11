@@ -39,7 +39,7 @@ def authenticate_user():
     if "authenticated" not in st.session_state:
         st.session_state.authenticated = None
 
-    left, right = st.columns(2)
+    left, right = st.sidebar.columns(2)
     if st.session_state.authenticated is None:
         if left.button("Administrator"):
             st.session_state.authenticated = "Administrator"
@@ -243,6 +243,9 @@ def main():
     user_role = st.session_state.authenticated
 
     if user_role == "Administrator":
+        # Display available areas and researchers
+        display_areas_and_researchers(conn)
+        
         st.sidebar.success("Logged in as Administrator")
 
         menu = ["Modify Research Area", "Modify Researcher List", "Upload Files", "Modify Files", "Add Unit"]
@@ -263,8 +266,7 @@ def main():
         elif choice == "Modify Files":
             display_and_filter_files(conn, admin=True)
       
-        # Display available areas and researchers
-        display_areas_and_researchers(conn)
+     
 
 
     elif user_role == "Visitor":
