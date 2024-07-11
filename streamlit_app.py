@@ -215,7 +215,6 @@ def main():
         areas = [row[0] for row in conn.execute("SELECT name FROM areas")]
         researchers = [row[0] for row in conn.execute("SELECT name FROM researchers")]
 
-        st.header("Uploaded Files")
         display_and_filter_files(conn)
 
     else:
