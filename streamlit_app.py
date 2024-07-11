@@ -2,15 +2,14 @@ import streamlit as st
 import sqlite3
 from sqlite3 import Error
 
-# Hide Streamlit branding with custom CSS
 hide_streamlit_style = """
-    <style>
-    #MainMenu {visibility: hidden;}
-    footer {visibility: hidden;}
-    .css-15zrgzn {display: none;}
-    </style>
-"""
-st.markdown(hide_streamlit_style, unsafe_allow_html=True)
+                    <style>
+                    #MainMenu {visibility: hidden;}
+                    footer {visibility: hidden;}
+                    </style>
+                    """
+                    
+        st.markdown(hide_streamlit_style, unsafe_allow_html=True) 
 
 
 # Create database connection and tables
