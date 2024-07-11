@@ -253,15 +253,17 @@ def main():
         
         st.sidebar.success("Logged in as Administrator")
 
-        menu = ["Modify Research Area", "Modify Researcher List", "Upload Files", "Modify Files"]
+        menu = ["Add Research Area", "Remove Research Area", "Add Researcher", "Remove Researcher", "Upload Files", "Modify Files"]
         choice = st.sidebar.selectbox("Select Action", menu)
-        if choice == "Modify Research Area":
+        if choice == "Add Research Area":
             st.header("Research Areas")
             add_research_area(conn)
+        elif choice == "Remove Research Area":
             delete_research_area(conn)
-        elif choice == "Modify Researcher List":
+        elif choice == "Add Researcher":
             st.header("Researchers")
             add_researcher(conn)
+        elif choice == "Remove Researcher":
             delete_researcher(conn)
         elif choice == "Upload Files":
             st.header("Upload and Tag Files")
