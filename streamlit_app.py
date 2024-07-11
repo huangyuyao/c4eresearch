@@ -42,11 +42,11 @@ def authenticate_user():
     left, right = st.sidebar.columns(2)
     if st.session_state.authenticated is None:
         if left.button("Administrator"):
-            st.session_state.authenticated = "Administrator"
+            st.session_state.authenticated = "Admin"
         if right.button("Visitor"):
             st.session_state.authenticated = "Visitor"
 
-    if st.session_state.authenticated == "Administrator" and st.session_state.authenticated is not None:
+    if st.session_state.authenticated == "Admin" and st.session_state.authenticated is not None and "Administrator":
         password = st.sidebar.text_input("Password", type="password")
         if st.sidebar.button("Login"):
             if password == "admin":
@@ -239,7 +239,9 @@ def main():
 
     st.sidebar.title("Role Selection")
     authenticate_user()
-
+    
+    user_role = st.session_state.authenticated
+    
     if user_role is not None:
         if st.sidebar.button("Switch Role"):
             st.session_state.authenticated = None
