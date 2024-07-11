@@ -227,6 +227,7 @@ def main():
     hide_streamlit_style = """
                     <style>
                     #MainMenu {visibility: hidden;}
+                    #GithubIcon {visibility: hidden;}
                     footer {visibility: hidden;}
                     </style>
                     """
