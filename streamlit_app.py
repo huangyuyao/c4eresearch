@@ -121,24 +121,29 @@ def display_and_filter_files(conn, admin=False):
             ]
 
             if filtered_files:
-                for file in filtered_files:
-                    with st.container():
-                        st.markdown(
-                            f"""
-                            <div style="border: 1px solid #ddd; border-radius: 5px; padding: 10px; margin: 10px 0;">
-                                <h3>{file[1]}</h3>
-                                <p><b>Research Areas:</b> {file[2]}</p>
-                                <p><b>Researchers:</b> {file[3]}</p>
-                                {st.download_button("Download file", file[4], file[1])}
-                                {"<br>" if admin else ""}
-                                {st.button("Modify", key=f"modify_{file[0]}") if admin else ""}
-                                {st.button("Delete", key=f"delete_{file[0]}") if admin else ""}
-                            </div>
-                            """, unsafe_allow_html=True)
-                    if admin and st.session_state.get(f"modify_{file[0]}"):
-                        modify_file(conn, file)
-                    if admin and st.session_state.get(f"delete_{file[0]}"):
-                        delete_file(conn, file[0])
+                cols = st.columns(2)
+                for i, file in enumerate(filtered_files):
+                    col = cols[i % 2]
+                    with col:
+                        with st.container():
+                            st.markdown(
+                                f"""
+                                <div style="border: 1px solid #ddd; border-radius: 5px; padding: 10px; margin: 10px 0;">
+                                    <h3>{file[1]}</h3>
+                                    <p><b>Research Areas:</b> {file[2]}</p>
+                                    <p><b>Researchers:</b> {file[3]}</p>
+                                    <div style="margin-top: 10px;">
+                                        {st.download_button("Download file", file[4], file[1])}
+                                        {"<br><br>" if admin else ""}
+                                        {st.button("Modify", key=f"modify_{file[0]}") if admin else ""}
+                                        {st.button("Delete", key=f"delete_{file[0]}") if admin else ""}
+                                    </div>
+                                </div>
+                                """, unsafe_allow_html=True)
+                        if admin and st.session_state.get(f"modify_{file[0]}"):
+                            modify_file(conn, file)
+                        if admin and st.session_state.get(f"delete_{file[0]}"):
+                            delete_file(conn, file[0])
             else:
                 st.info("No files match the selected filters.")
         else:
