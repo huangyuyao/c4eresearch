@@ -137,14 +137,20 @@ def display_and_filter_files(conn, admin=False):
                                 """, unsafe_allow_html=True)
 
                             one, two, three = st.columns([2, 1, 1])
-                            one.download_button("Download", file[4], file[1])
+                            with one:
+                                st.download_button("Download", file[4], file[1])
                             if admin:
-                                two.button("Modify", key=f"modify_{file[0]}")
-                                three.button("Delete", key=f"delete_{file[0]}")
+                                with two:
+                                    if st.button("Modify", key=f"modify_{file[0]}"):
+                                        st.session_state[f"modify_{file[0]}"] = True
+                                with three:
+                                    if st.button("Delete", key=f"delete_{file[0]}"):
+                                        st.session_state[f"delete_{file[0]}"] = True
                         if admin and st.session_state.get(f"modify_{file[0]}"):
                             modify_file(conn, file)
                         if admin and st.session_state.get(f"delete_{file[0]}"):
                             delete_file(conn, file[0])
+                            st.experimental_rerun()
             else:
                 st.info("No files match the selected filters.")
         else:
@@ -162,6 +168,8 @@ def modify_file(conn, file):
             conn.execute("UPDATE files SET areas = ?, researchers = ? WHERE id = ?", (','.join(new_areas), ','.join(new_researchers), file[0]))
             conn.commit()
             st.success(f"Updated file: {file[1]}")
+            st.session_state[f"modify_{file[0]}"] = False
+            st.experimental_rerun()
         except Error as e:
             st.error(f"Error: {e}")
 
@@ -263,9 +271,6 @@ def main():
         st.sidebar.info("Logged in as Visitor")
         
         # Display and filter uploaded files
-        areas = [row[0] for row in conn.execute("SELECT name FROM areas")]
-        researchers = [row[0] for row in conn.execute("SELECT name FROM researchers")]
-
         display_and_filter_files(conn)
 
     else:
