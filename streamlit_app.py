@@ -141,10 +141,10 @@ def display_and_filter_files(conn, admin=False):
                                 st.download_button("Download", file[4], file[1])
                             if admin:
                                 with two:
-                                    if st.button("Modify", key=f"modify_{file[0]}"):
+                                    if st.button("Modify", key=f"modify_{file[0]}_btn"):
                                         st.session_state[f"modify_{file[0]}"] = True
                                 with three:
-                                    if st.button("Delete", key=f"delete_{file[0]}"):
+                                    if st.button("Delete", key=f"delete_{file[0]}_btn"):
                                         st.session_state[f"delete_{file[0]}"] = True
                         if admin and st.session_state.get(f"modify_{file[0]}"):
                             modify_file(conn, file)
@@ -223,7 +223,7 @@ def display_areas_and_researchers(conn):
         st.markdown("_No researchers available._")
 
 st.set_page_config(
-    page_title="U-M Center For Ergonomics Research Hub",
+    page_title="U-M Center For Ergonomics Research",
     page_icon="📚",
 )
 
