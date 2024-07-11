@@ -39,19 +39,20 @@ def authenticate_user():
     if "authenticated" not in st.session_state:
         st.session_state.authenticated = None
 
-    if st.button("Administrator"):
-        st.session_state.authenticated = "Administrator"
-    if st.button("Visitor"):
-        st.session_state.authenticated = "Visitor"
+    if st.session_state.authenticated is None:
+        if st.button("Administrator"):
+            st.session_state.authenticated = "Administrator"
+        if st.button("Visitor"):
+            st.session_state.authenticated = "Visitor"
 
-    if st.session_state.authenticated == "Administrator":
-        password = st.sidebar.text_input("Password", type="password")
-        if st.sidebar.button("Login"):
-            if password == "admin":
-                st.session_state.authenticated = "Administrator"
-            else:
-                st.sidebar.error("Invalid password")
-                st.session_state.authenticated = None
+        if st.session_state.authenticated == "Administrator":
+            password = st.sidebar.text_input("Password", type="password")
+            if st.sidebar.button("Login"):
+                if password == "admin":
+                    st.session_state.authenticated = "Administrator"
+                else:
+                    st.sidebar.error("Invalid password")
+                    st.session_state.authenticated = None
 
 # Add new research area
 def add_research_area(conn):
@@ -121,16 +122,23 @@ def display_and_filter_files(conn, admin=False):
 
             if filtered_files:
                 for file in filtered_files:
-                    st.markdown(f"**{file[1]}**")  # Title in big and bold
-                    st.markdown(f"<small>Research Areas: {file[2]}</small>", unsafe_allow_html=True)  # Tags in small
-                    st.markdown(f"<small>Researchers: {file[3]}</small>", unsafe_allow_html=True)  # Tags in small
-                    st.download_button("Download file", file[4], file[1])
-                    if admin:
-                        if st.button(f"Modify Tags of {file[1]}", key=f"modify_{file[0]}"):
-                            modify_file(conn, file)
-                        if st.button(f"Delete {file[1]}", key=f"delete_{file[0]}"):
-                            delete_file(conn, file[0])
-                    st.markdown("---")
+                    with st.container():
+                        st.markdown(
+                            f"""
+                            <div style="border: 1px solid #ddd; border-radius: 5px; padding: 10px; margin: 10px 0;">
+                                <h3>{file[1]}</h3>
+                                <p><b>Research Areas:</b> {file[2]}</p>
+                                <p><b>Researchers:</b> {file[3]}</p>
+                                {st.download_button("Download file", file[4], file[1])}
+                                {"<br>" if admin else ""}
+                                {st.button("Modify", key=f"modify_{file[0]}") if admin else ""}
+                                {st.button("Delete", key=f"delete_{file[0]}") if admin else ""}
+                            </div>
+                            """, unsafe_allow_html=True)
+                    if admin and st.session_state.get(f"modify_{file[0]}"):
+                        modify_file(conn, file)
+                    if admin and st.session_state.get(f"delete_{file[0]}"):
+                        delete_file(conn, file[0])
             else:
                 st.info("No files match the selected filters.")
         else:
