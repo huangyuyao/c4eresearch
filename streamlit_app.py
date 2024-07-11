@@ -214,9 +214,14 @@ def display_areas_and_researchers(conn):
     else:
         st.markdown("_No researchers available._")
 
+st.set_page_config(
+    page_title="U-M Center For Ergonomics Research Hub",
+    page_icon="📚",
+)
+
 # Main application
 def main():
-    st.title("Center for Ergonomics Research Management System")
+    st.title("U-M Center for Ergonomics Research Hub")
 
     conn = create_connection()
     if conn is not None:
