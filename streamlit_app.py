@@ -39,9 +39,11 @@ def authenticate_user():
     if "authenticated" not in st.session_state:
         st.session_state.authenticated = None
 
-    if st.button("Administrator"):
+    left, right = st.columns(2)
+    
+    if right.button("Administrator"):
         st.session_state.authenticated = "Administrator"
-    if st.button("Visitor"):
+    if left.button("Visitor"):
         st.session_state.authenticated = "Visitor"
 
     if st.session_state.authenticated == "Administrator":
@@ -143,13 +145,11 @@ def main():
     else:
         st.error("Error! Cannot create the database connection.")
 
-    st.sidebar.title("Role Selection")
     authenticate_user()
 
     user_role = st.session_state.authenticated
 
     if user_role == "Administrator":
-        st.sidebar.success("Logged in as Administrator")
         
         # Research areas management
         st.header("Research Areas")
@@ -177,8 +177,6 @@ def main():
         
         areas = [row[0] for row in conn.execute("SELECT name FROM areas")]
         researchers = [row[0] for row in conn.execute("SELECT name FROM researchers")]
-
-        st.header("Uploaded Files")
         display_and_filter_files(conn)
 
     else:
