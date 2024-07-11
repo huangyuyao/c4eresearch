@@ -39,10 +39,9 @@ def authenticate_user():
     if "authenticated" not in st.session_state:
         st.session_state.authenticated = None
 
-    left, right = st.sidebar.columns(2)
-    if right.button("Administrator"):
+    if st.button("Administrator"):
         st.session_state.authenticated = "Administrator"
-    if left.button("Visitor"):
+    if st.button("Visitor"):
         st.session_state.authenticated = "Visitor"
 
     if st.session_state.authenticated == "Administrator":
@@ -168,6 +167,24 @@ def delete_file(conn, file_id):
     except Error as e:
         st.error(f"Error: {e}")
 
+# Display available areas and researchers
+def display_areas_and_researchers(conn):
+    st.subheader("Available Research Areas")
+    areas = [row[0] for row in conn.execute("SELECT name FROM areas")]
+    if areas:
+        for area in areas:
+            st.markdown(f"- **{area}**")
+    else:
+        st.markdown("_No research areas available._")
+
+    st.subheader("Available Researchers")
+    researchers = [row[0] for row in conn.execute("SELECT name FROM researchers")]
+    if researchers:
+        for researcher in researchers:
+            st.markdown(f"- **{researcher}**")
+    else:
+        st.markdown("_No researchers available._")
+
 # Main application
 def main():
     st.title("Research Management System")
@@ -190,20 +207,18 @@ def main():
         st.header("Research Areas")
         add_research_area(conn)
         delete_research_area(conn)
-        areas = [row[0] for row in conn.execute("SELECT name FROM areas")]
-        st.subheader("Available Research Areas")
-        st.write(areas)
+        display_areas_and_researchers(conn)
 
         # Researchers management
         st.header("Researchers")
         add_researcher(conn)
         delete_researcher(conn)
-        researchers = [row[0] for row in conn.execute("SELECT name FROM researchers")]
-        st.subheader("Available Researchers")
-        st.write(researchers)
+        display_areas_and_researchers(conn)
 
         # File upload with tagging
         st.header("Upload and Tag Files")
+        areas = [row[0] for row in conn.execute("SELECT name FROM areas")]
+        researchers = [row[0] for row in conn.execute("SELECT name FROM researchers")]
         tag_files(conn, areas, researchers)
 
         # Display and filter uploaded files
@@ -215,6 +230,7 @@ def main():
         areas = [row[0] for row in conn.execute("SELECT name FROM areas")]
         researchers = [row[0] for row in conn.execute("SELECT name FROM researchers")]
 
+        st.header("Uploaded Files")
         display_and_filter_files(conn)
 
     else:
