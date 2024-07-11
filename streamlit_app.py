@@ -126,6 +126,8 @@ def display_and_filter_files(conn, admin=False):
                     st.markdown(f"<small>Researchers: {file[3]}</small>", unsafe_allow_html=True)  # Tags in small
                     st.download_button("Download file", file[4], file[1])
                     if admin:
+                        if st.button(f"Modify {file[1]}", key=f"modify_{file[0]}"):
+                            modify_file(conn, file)
                         if st.button(f"Delete {file[1]}", key=f"delete_{file[0]}"):
                             delete_file(conn, file[0])
                     st.markdown("---")
@@ -135,6 +137,19 @@ def display_and_filter_files(conn, admin=False):
             st.info("No files uploaded yet.")
     except Error as e:
         st.error(f"Error: {e}")
+
+# Modify a file
+def modify_file(conn, file):
+    st.markdown(f"### Modify File: {file[1]}")
+    new_areas = st.multiselect("Modify Research Areas", [row[0] for row in conn.execute("SELECT name FROM areas")], file[2].split(','))
+    new_researchers = st.multiselect("Modify Researchers", [row[0] for row in conn.execute("SELECT name FROM researchers")], file[3].split(','))
+    if st.button("Save Changes", key=f"save_{file[0]}"):
+        try:
+            conn.execute("UPDATE files SET areas = ?, researchers = ? WHERE id = ?", (','.join(new_areas), ','.join(new_researchers), file[0]))
+            conn.commit()
+            st.success(f"Updated file: {file[1]}")
+        except Error as e:
+            st.error(f"Error: {e}")
 
 # Delete a research area
 def delete_research_area(conn):
@@ -202,18 +217,19 @@ def main():
 
     if user_role == "Administrator":
         st.sidebar.success("Logged in as Administrator")
+
+        # Display available areas and researchers
+        display_areas_and_researchers(conn)
         
         # Research areas management
         st.header("Research Areas")
         add_research_area(conn)
         delete_research_area(conn)
-        display_areas_and_researchers(conn)
 
         # Researchers management
         st.header("Researchers")
         add_researcher(conn)
         delete_researcher(conn)
-        display_areas_and_researchers(conn)
 
         # File upload with tagging
         st.header("Upload and Tag Files")
@@ -226,10 +242,13 @@ def main():
 
     elif user_role == "Visitor":
         st.sidebar.info("Logged in as Visitor")
+
+        # Display available areas and researchers
+        display_areas_and_researchers(conn)
         
+        # Display and filter uploaded files
         areas = [row[0] for row in conn.execute("SELECT name FROM areas")]
         researchers = [row[0] for row in conn.execute("SELECT name FROM researchers")]
-
         st.header("Uploaded Files")
         display_and_filter_files(conn)
 
