@@ -245,27 +245,27 @@ def main():
     if user_role == "Administrator":
         st.sidebar.success("Logged in as Administrator")
 
+        menu = ["Modify Research Area", "Modify Researcher List", "Upload Files", "Modify Files", "Add Unit"]
+        choice = st.sidebar.selectbox("Select Action", menu)
+        if choice == "Modify Research Area":
+            st.header("Research Areas")
+            add_research_area(conn)
+            delete_research_area(conn)
+        elif choice == "Modify Researcher List":
+            st.header("Researchers")
+            add_researcher(conn)
+            delete_researcher(conn)
+        elif choice == "Upload Files":
+            st.header("Upload and Tag Files")
+            areas = [row[0] for row in conn.execute("SELECT name FROM areas")]
+            researchers = [row[0] for row in conn.execute("SELECT name FROM researchers")]
+            tag_files(conn, areas, researchers)
+        elif choice == "Modify Files":
+            display_and_filter_files(conn, admin=True)
+      
         # Display available areas and researchers
         display_areas_and_researchers(conn)
-        
-        # Research areas management
-        st.header("Research Areas")
-        add_research_area(conn)
-        delete_research_area(conn)
 
-        # Researchers management
-        st.header("Researchers")
-        add_researcher(conn)
-        delete_researcher(conn)
-
-        # File upload with tagging
-        st.header("Upload and Tag Files")
-        areas = [row[0] for row in conn.execute("SELECT name FROM areas")]
-        researchers = [row[0] for row in conn.execute("SELECT name FROM researchers")]
-        tag_files(conn, areas, researchers)
-
-        # Display and filter uploaded files
-        display_and_filter_files(conn, admin=True)
 
     elif user_role == "Visitor":
         st.sidebar.info("Logged in as Visitor")
