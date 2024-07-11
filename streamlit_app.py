@@ -39,11 +39,9 @@ def authenticate_user():
     if "authenticated" not in st.session_state:
         st.session_state.authenticated = None
 
-    left, right = st.sidebar.columns(2)
-    
-    if right.button("Administrator"):
+    if st.button("Administrator"):
         st.session_state.authenticated = "Administrator"
-    if left.button("Visitor"):
+    if st.button("Visitor"):
         st.session_state.authenticated = "Visitor"
 
     if st.session_state.authenticated == "Administrator":
@@ -105,7 +103,7 @@ def tag_files(conn, areas, researchers):
             st.warning("Please upload at least one file.")
 
 # Display and filter uploaded files
-def display_and_filter_files(conn):
+def display_and_filter_files(conn, admin=False):
     st.header("Uploaded Files")
     try:
         cursor = conn.cursor()
@@ -127,6 +125,9 @@ def display_and_filter_files(conn):
                     st.markdown(f"<small>Research Areas: {file[2]}</small>", unsafe_allow_html=True)  # Tags in small
                     st.markdown(f"<small>Researchers: {file[3]}</small>", unsafe_allow_html=True)  # Tags in small
                     st.download_button("Download file", file[4], file[1])
+                    if admin:
+                        if st.button(f"Delete {file[1]}", key=f"delete_{file[0]}"):
+                            delete_file(conn, file[0])
                     st.markdown("---")
             else:
                 st.info("No files match the selected filters.")
@@ -135,9 +136,40 @@ def display_and_filter_files(conn):
     except Error as e:
         st.error(f"Error: {e}")
 
+# Delete a research area
+def delete_research_area(conn):
+    area_to_delete = st.selectbox("Select Research Area to Delete", [row[0] for row in conn.execute("SELECT name FROM areas")])
+    if st.button("Delete Area"):
+        try:
+            conn.execute("DELETE FROM areas WHERE name=?", (area_to_delete,))
+            conn.commit()
+            st.success(f"Deleted area: {area_to_delete}")
+        except Error as e:
+            st.error(f"Error: {e}")
+
+# Delete a researcher
+def delete_researcher(conn):
+    researcher_to_delete = st.selectbox("Select Researcher to Delete", [row[0] for row in conn.execute("SELECT name FROM researchers")])
+    if st.button("Delete Researcher"):
+        try:
+            conn.execute("DELETE FROM researchers WHERE name=?", (researcher_to_delete,))
+            conn.commit()
+            st.success(f"Deleted researcher: {researcher_to_delete}")
+        except Error as e:
+            st.error(f"Error: {e}")
+
+# Delete a file
+def delete_file(conn, file_id):
+    try:
+        conn.execute("DELETE FROM files WHERE id=?", (file_id,))
+        conn.commit()
+        st.success(f"Deleted file with ID: {file_id}")
+    except Error as e:
+        st.error(f"Error: {e}")
+
 # Main application
 def main():
-    st.title("Center for Ergonomics Research Management System")
+    st.title("Research Management System")
 
     conn = create_connection()
     if conn is not None:
@@ -145,15 +177,18 @@ def main():
     else:
         st.error("Error! Cannot create the database connection.")
 
+    st.sidebar.title("Role Selection")
     authenticate_user()
 
     user_role = st.session_state.authenticated
 
     if user_role == "Administrator":
+        st.sidebar.success("Logged in as Administrator")
         
         # Research areas management
         st.header("Research Areas")
         add_research_area(conn)
+        delete_research_area(conn)
         areas = [row[0] for row in conn.execute("SELECT name FROM areas")]
         st.subheader("Available Research Areas")
         st.write(areas)
@@ -161,6 +196,7 @@ def main():
         # Researchers management
         st.header("Researchers")
         add_researcher(conn)
+        delete_researcher(conn)
         researchers = [row[0] for row in conn.execute("SELECT name FROM researchers")]
         st.subheader("Available Researchers")
         st.write(researchers)
@@ -170,13 +206,15 @@ def main():
         tag_files(conn, areas, researchers)
 
         # Display and filter uploaded files
-        display_and_filter_files(conn)
+        display_and_filter_files(conn, admin=True)
 
     elif user_role == "Visitor":
         st.sidebar.info("Logged in as Visitor")
         
         areas = [row[0] for row in conn.execute("SELECT name FROM areas")]
         researchers = [row[0] for row in conn.execute("SELECT name FROM researchers")]
+
+        st.header("Uploaded Files")
         display_and_filter_files(conn)
 
     else:
