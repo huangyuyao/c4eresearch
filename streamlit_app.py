@@ -132,14 +132,12 @@ def display_and_filter_files(conn, admin=False):
                                     <h3>{file[1]}</h3>
                                     <p><b>Research Areas:</b> {file[2]}</p>
                                     <p><b>Researchers:</b> {file[3]}</p>
-                                    <p>
+                                </div>
+                                """, unsafe_allow_html=True)
                                         {st.download_button("Download file", file[4], file[1])}
                                         {"<br><br>" if admin else ""}
                                         {st.button("Modify", key=f"modify_{file[0]}") if admin else ""}
                                         {st.button("Delete", key=f"delete_{file[0]}") if admin else ""}
-                                    </p>
-                                </div>
-                                """, unsafe_allow_html=True)
                         if admin and st.session_state.get(f"modify_{file[0]}"):
                             modify_file(conn, file)
                         if admin and st.session_state.get(f"delete_{file[0]}"):
