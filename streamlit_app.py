@@ -49,7 +49,7 @@ def authenticate_user():
     if st.session_state.authenticated == "Admin" and st.session_state.authenticated is not None and "Administrator":
         password = st.sidebar.text_input("Password", type="password")
         if st.sidebar.button("Login"):
-            if password == "admin":
+            if password == "summer":
                 st.session_state.authenticated = "Administrator"
             else:
                 st.sidebar.error("Invalid password")
