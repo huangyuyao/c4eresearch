@@ -256,14 +256,16 @@ def main():
         menu = ["Add Research Area", "Remove Research Area", "Add Researcher", "Remove Researcher", "Upload Files", "Modify Files"]
         choice = st.sidebar.selectbox("Select Action", menu)
         if choice == "Add Research Area":
-            st.header("Research Areas")
+            st.header("Add Research Area")
             add_research_area(conn)
         elif choice == "Remove Research Area":
+            st.header("Remove Research Area")
             delete_research_area(conn)
         elif choice == "Add Researcher":
-            st.header("Researchers")
+            st.header("Add Researcher")
             add_researcher(conn)
         elif choice == "Remove Researcher":
+            st.header("Remove Researcher")
             delete_researcher(conn)
         elif choice == "Upload Files":
             st.header("Upload and Tag Files")
