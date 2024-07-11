@@ -240,10 +240,7 @@ def main():
     st.sidebar.title("Role Selection")
     authenticate_user()
 
-    user_role = st.session_state.authenticated
-
     if user_role is not None:
-        st.sidebar.markdown(f"**Logged in as {user_role}**")
         if st.sidebar.button("Switch Role"):
             st.session_state.authenticated = None
             st.experimental_rerun()
