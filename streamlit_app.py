@@ -216,7 +216,7 @@ def display_areas_and_researchers(conn):
 
 # Main application
 def main():
-    st.title("Research Management System")
+    st.title("Center for Ergonomics Research Management System")
 
     conn = create_connection()
     if conn is not None:
