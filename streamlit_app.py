@@ -217,14 +217,8 @@ def display_areas_and_researchers(conn):
     else:
         st.markdown("_No research areas or researchers available._")
 
-st.set_page_config(
-    page_title="U-M Center For Ergonomics Research Hub",
-    page_icon="📚",
-)
 
-# Main application
-def main():
-    hide_streamlit_style = """
+hide_streamlit_style = """
                     <style>
                     #MainMenu {visibility: hidden;}
                     #GithubIcon {visibility: hidden;}
@@ -232,7 +226,16 @@ def main():
                     </style>
                     """
                     
-    st.markdown(hide_streamlit_style, unsafe_allow_html=True) 
+st.markdown(hide_streamlit_style, unsafe_allow_html=True) 
+
+st.set_page_config(
+    page_title="U-M Center For Ergonomics Research Hub",
+    page_icon="📚",
+)
+
+# Main application
+def main():
+
     st.title("U-M Center for Ergonomics Research Hub")
 
     conn = create_connection()
