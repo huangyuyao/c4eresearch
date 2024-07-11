@@ -2,6 +2,11 @@ import streamlit as st
 import sqlite3
 from sqlite3 import Error
 
+st.set_page_config(
+    page_title="U-M Center For Ergonomics Research Hub",
+    page_icon="📚",
+)
+
 hide_streamlit_style = """
     <style>
     #MainMenu {visibility: hidden;}
@@ -225,10 +230,7 @@ def display_areas_and_researchers(conn):
     else:
         st.markdown("_No research areas or researchers available._")
 
-st.set_page_config(
-    page_title="U-M Center For Ergonomics Research Hub",
-    page_icon="📚",
-)
+
 
 # Main application
 def main():
