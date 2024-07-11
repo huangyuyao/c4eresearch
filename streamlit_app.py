@@ -204,23 +204,16 @@ def delete_file(conn, file_id):
     except Error as e:
         st.error(f"Error: {e}")
 
-# Display available areas and researchers
 def display_areas_and_researchers(conn):
-    st.subheader("Available Research Areas")
     areas = [row[0] for row in conn.execute("SELECT name FROM areas")]
-    if areas:
-        for area in areas:
-            st.markdown(f"- **{area}**")
-    else:
-        st.markdown("_No research areas available._")
-
-    st.subheader("Available Researchers")
     researchers = [row[0] for row in conn.execute("SELECT name FROM researchers")]
-    if researchers:
-        for researcher in researchers:
-            st.markdown(f"- **{researcher}**")
+
+    if areas or researchers:
+        st.subheader("Available Research Areas and Researchers")
+        st.markdown(f"**Areas**: {', '.join(areas)}")
+        st.markdown(f"**Researchers**: {', '.join(researchers)}")
     else:
-        st.markdown("_No researchers available._")
+        st.markdown("_No research areas or researchers available._")
 
 st.set_page_config(
     page_title="U-M Center For Ergonomics Research Hub",
