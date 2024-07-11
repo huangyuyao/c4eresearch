@@ -126,7 +126,7 @@ def display_and_filter_files(conn, admin=False):
                     st.markdown(f"<small>Researchers: {file[3]}</small>", unsafe_allow_html=True)  # Tags in small
                     st.download_button("Download file", file[4], file[1])
                     if admin:
-                        if st.button(f"Modify {file[1]}", key=f"modify_{file[0]}"):
+                        if st.button(f"Modify Tags of {file[1]}", key=f"modify_{file[0]}"):
                             modify_file(conn, file)
                         if st.button(f"Delete {file[1]}", key=f"delete_{file[0]}"):
                             delete_file(conn, file[0])
