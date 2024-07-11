@@ -134,10 +134,12 @@ def display_and_filter_files(conn, admin=False):
                                     <p><b>Researchers:</b> {file[3]}</p>
                                 </div>
                                 """, unsafe_allow_html=True)
-                            st.download_button("Download file", file[4], file[1])
+
+                        one, two, three = st.columns(3)
+                            one.download_button("Download file", file[4], file[1])
                             if admin:
-                                st.button("Modify", key=f"modify_{file[0]}")
-                                st.button("Delete", key=f"delete_{file[0]}")
+                                two.button("Modify", key=f"modify_{file[0]}")
+                                three.button("Delete", key=f"delete_{file[0]}")
                         if admin and st.session_state.get(f"modify_{file[0]}"):
                             modify_file(conn, file)
                         if admin and st.session_state.get(f"delete_{file[0]}"):
