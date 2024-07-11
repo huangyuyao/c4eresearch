@@ -39,10 +39,11 @@ def authenticate_user():
     if "authenticated" not in st.session_state:
         st.session_state.authenticated = None
 
+    left, right = st.columns(2)
     if st.session_state.authenticated is None:
-        if st.button("Administrator"):
+        if left.button("Administrator"):
             st.session_state.authenticated = "Administrator"
-        if st.button("Visitor"):
+        if right.button("Visitor"):
             st.session_state.authenticated = "Visitor"
 
         if st.session_state.authenticated == "Administrator":
@@ -95,9 +96,9 @@ def tag_files(conn, areas, researchers):
                     )
                     conn.execute("INSERT INTO files (name, areas, researchers, content) VALUES (?, ?, ?, ?)", file_info)
                     conn.commit()
-                    st.write(f"Uploaded file: {uploaded_file.name}")
-                    st.write(f"Tagged with areas: {selected_areas}")
-                    st.write(f"Tagged with researchers: {selected_researchers}")
+                    st.success(f"Uploaded file: {uploaded_file.name}")
+                    st.success(f"Tagged with areas: {selected_areas}")
+                    st.success(f"Tagged with researchers: {selected_researchers}")
                 except Error as e:
                     st.error(f"Error: {e}")
         else:
