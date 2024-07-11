@@ -136,7 +136,7 @@ def display_and_filter_files(conn, admin=False):
                                 """, unsafe_allow_html=True)
 
                             one, two, three = st.columns(3)
-                            one.download_button("Download file", file[4], file[1])
+                            one.download_button("Download", file[4], file[1])
                             if admin:
                                 two.button("Modify", key=f"modify_{file[0]}")
                                 three.button("Delete", key=f"delete_{file[0]}")
