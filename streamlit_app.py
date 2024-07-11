@@ -2,7 +2,15 @@ import streamlit as st
 import sqlite3
 from sqlite3 import Error
 
-
+hide_streamlit_style = """
+    <style>
+    #MainMenu {visibility: hidden;}
+    footer {visibility: hidden;}
+    .css-15zrgzn {display: none;}
+    .css-1rs6os {display: none;}  /* To hide the GitHub link */
+    </style>
+"""
+st.markdown(hide_streamlit_style, unsafe_allow_html=True)
 
 
 # Create database connection and tables
@@ -216,17 +224,6 @@ def display_areas_and_researchers(conn):
         st.markdown(f"### **Researchers**: {', '.join(researchers)}")
     else:
         st.markdown("_No research areas or researchers available._")
-
-
-hide_streamlit_style = """
-                    <style>
-                    #MainMenu {visibility: hidden;}
-                    #GithubIcon {visibility: hidden;}
-                    footer {visibility: hidden;}
-                    </style>
-                    """
-                    
-st.markdown(hide_streamlit_style, unsafe_allow_html=True) 
 
 st.set_page_config(
     page_title="U-M Center For Ergonomics Research Hub",
