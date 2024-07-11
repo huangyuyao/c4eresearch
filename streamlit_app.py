@@ -266,12 +266,11 @@ def main():
         elif choice == "Modify Files":
             display_and_filter_files(conn, admin=True)
       
-     
 
 
     elif user_role == "Visitor":
         st.sidebar.info("Logged in as Visitor")
-        
+        authenticate_user()
         # Display and filter uploaded files
         display_and_filter_files(conn)
 
