@@ -39,9 +39,10 @@ def authenticate_user():
     if "authenticated" not in st.session_state:
         st.session_state.authenticated = None
 
-    if st.button("Administrator"):
+    left, right = st.sidebar.columns(2)
+    if right.button("Administrator"):
         st.session_state.authenticated = "Administrator"
-    if st.button("Visitor"):
+    if left.button("Visitor"):
         st.session_state.authenticated = "Visitor"
 
     if st.session_state.authenticated == "Administrator":
