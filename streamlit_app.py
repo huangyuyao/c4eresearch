@@ -255,9 +255,6 @@ def main():
 
     elif user_role == "Visitor":
         st.sidebar.info("Logged in as Visitor")
-
-        # Display available areas and researchers
-        display_areas_and_researchers(conn)
         
         # Display and filter uploaded files
         areas = [row[0] for row in conn.execute("SELECT name FROM areas")]
