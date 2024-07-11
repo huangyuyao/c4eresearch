@@ -67,17 +67,6 @@ def add_research_area(conn):
             except Error as e:
                 st.error(f"Error: {e}")
 
-# Delete a research area
-def delete_research_area(conn):
-    area_to_delete = st.selectbox("Select Research Area to Delete", [row[0] for row in conn.execute("SELECT name FROM areas")])
-    if st.button("Delete Area"):
-        try:
-            conn.execute("DELETE FROM areas WHERE name=?", (area_to_delete,))
-            conn.commit()
-            st.success(f"Deleted area: {area_to_delete}")
-        except Error as e:
-            st.error(f"Error: {e}")
-
 # Add new researcher
 def add_researcher(conn):
     new_researcher = st.text_input("Add Researcher Name")
@@ -89,17 +78,6 @@ def add_researcher(conn):
                 st.success(f"Added new researcher: {new_researcher}")
             except Error as e:
                 st.error(f"Error: {e}")
-
-# Delete a researcher
-def delete_researcher(conn):
-    researcher_to_delete = st.selectbox("Select Researcher to Delete", [row[0] for row in conn.execute("SELECT name FROM researchers")])
-    if st.button("Delete Researcher"):
-        try:
-            conn.execute("DELETE FROM researchers WHERE name=?", (researcher_to_delete,))
-            conn.commit()
-            st.success(f"Deleted researcher: {researcher_to_delete}")
-        except Error as e:
-            st.error(f"Error: {e}")
 
 # Tag files with areas and researchers
 def tag_files(conn, areas, researchers):
@@ -158,15 +136,15 @@ def display_and_filter_files(conn, admin=False):
                                 </div>
                                 """, unsafe_allow_html=True)
 
-                            one, two = st.columns([2, 1])
+                            one, two, three = st.columns([2, 1, 1])
                             with one:
                                 st.download_button("Download", file[4], file[1])
                             if admin:
                                 with two:
-                                    action = st.selectbox("Action", ["Select", "Modify", "Delete"], key=f"action_{file[0]}")
-                                    if action == "Modify":
+                                    if st.button("Modify", key=f"modify_{file[0]}_btn"):
                                         st.session_state[f"modify_{file[0]}"] = True
-                                    if action == "Delete":
+                                with three:
+                                    if st.button("Delete", key=f"delete_{file[0]}_btn"):
                                         st.session_state[f"delete_{file[0]}"] = True
                         if admin and st.session_state.get(f"modify_{file[0]}"):
                             modify_file(conn, file)
@@ -192,6 +170,28 @@ def modify_file(conn, file):
             st.success(f"Updated file: {file[1]}")
             st.session_state[f"modify_{file[0]}"] = False
             st.experimental_rerun()
+        except Error as e:
+            st.error(f"Error: {e}")
+
+# Delete a research area
+def delete_research_area(conn):
+    area_to_delete = st.selectbox("Select Research Area to Delete", [row[0] for row in conn.execute("SELECT name FROM areas")])
+    if st.button("Delete Area"):
+        try:
+            conn.execute("DELETE FROM areas WHERE name=?", (area_to_delete,))
+            conn.commit()
+            st.success(f"Deleted area: {area_to_delete}")
+        except Error as e:
+            st.error(f"Error: {e}")
+
+# Delete a researcher
+def delete_researcher(conn):
+    researcher_to_delete = st.selectbox("Select Researcher to Delete", [row[0] for row in conn.execute("SELECT name FROM researchers")])
+    if st.button("Delete Researcher"):
+        try:
+            conn.execute("DELETE FROM researchers WHERE name=?", (researcher_to_delete,))
+            conn.commit()
+            st.success(f"Deleted researcher: {researcher_to_delete}")
         except Error as e:
             st.error(f"Error: {e}")
 
