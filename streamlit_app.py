@@ -39,8 +39,12 @@ def authenticate_user():
     if "authenticated" not in st.session_state:
         st.session_state.authenticated = None
 
-    user_role = st.sidebar.selectbox("Choose your role", ["Visitor", "Administrator"])
-    if user_role == "Administrator":
+    if st.button("Administrator"):
+        st.session_state.authenticated = "Administrator"
+    if st.button("Visitor"):
+        st.session_state.authenticated = "Visitor"
+
+    if st.session_state.authenticated == "Administrator":
         password = st.sidebar.text_input("Password", type="password")
         if st.sidebar.button("Login"):
             if password == "admin":
@@ -48,8 +52,6 @@ def authenticate_user():
             else:
                 st.sidebar.error("Invalid password")
                 st.session_state.authenticated = None
-    else:
-        st.session_state.authenticated = "Visitor"
 
 # Add new research area
 def add_research_area(conn):
@@ -119,10 +121,11 @@ def display_and_filter_files(conn):
 
             if filtered_files:
                 for file in filtered_files:
-                    st.write(f"File name: {file[1]}")
-                    st.write(f"Research Areas: {file[2]}")
-                    st.write(f"Researchers: {file[3]}")
+                    st.markdown(f"**{file[1]}**")  # Title in big and bold
+                    st.markdown(f"<small>Research Areas: {file[2]}</small>", unsafe_allow_html=True)  # Tags in small
+                    st.markdown(f"<small>Researchers: {file[3]}</small>", unsafe_allow_html=True)  # Tags in small
                     st.download_button("Download file", file[4], file[1])
+                    st.markdown("---")
             else:
                 st.info("No files match the selected filters.")
         else:
@@ -140,6 +143,7 @@ def main():
     else:
         st.error("Error! Cannot create the database connection.")
 
+    st.sidebar.title("Role Selection")
     authenticate_user()
 
     user_role = st.session_state.authenticated
@@ -174,17 +178,8 @@ def main():
         areas = [row[0] for row in conn.execute("SELECT name FROM areas")]
         researchers = [row[0] for row in conn.execute("SELECT name FROM researchers")]
 
-        st.header("Research Areas")
-        st.write(areas)
-
-        st.header("Researchers")
-        st.write(researchers)
-
         st.header("Uploaded Files")
         display_and_filter_files(conn)
-
-        st.header("Upload and Tag Files")
-        st.info("File upload and tagging is available for administrators only.")
 
     else:
         st.sidebar.warning("Please choose your role to access the system.")
