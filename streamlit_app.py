@@ -209,8 +209,8 @@ def display_areas_and_researchers(conn):
     researchers = [row[0] for row in conn.execute("SELECT name FROM researchers")]
 
     if areas or researchers:
-        st.markdown(f"#**Areas**: ##{', '.join(areas)}")
-        st.markdown(f"#**Researchers**: ##{', '.join(researchers)}")
+        st.markdown(f"# **Areas**: ## {', '.join(areas)}")
+        st.markdown(f"# **Researchers**: ## {', '.join(researchers)}")
     else:
         st.markdown("_No research areas or researchers available._")
 
