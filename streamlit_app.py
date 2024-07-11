@@ -2,14 +2,7 @@ import streamlit as st
 import sqlite3
 from sqlite3 import Error
 
-hide_streamlit_style = """
-                    <style>
-                    #MainMenu {visibility: hidden;}
-                    footer {visibility: hidden;}
-                    </style>
-                    """
-                    
-st.markdown(hide_streamlit_style, unsafe_allow_html=True) 
+
 
 
 # Create database connection and tables
@@ -231,6 +224,14 @@ st.set_page_config(
 
 # Main application
 def main():
+    hide_streamlit_style = """
+                    <style>
+                    #MainMenu {visibility: hidden;}
+                    footer {visibility: hidden;}
+                    </style>
+                    """
+                    
+    st.markdown(hide_streamlit_style, unsafe_allow_html=True) 
     st.title("U-M Center for Ergonomics Research Hub")
 
     conn = create_connection()
