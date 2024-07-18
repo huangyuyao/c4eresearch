@@ -284,7 +284,7 @@ def main():
     elif user_role == "Visitor":
         st.sidebar.info("Logged in as Visitor")
         # Display and filter uploaded files
-        display_and_filter_files(conn)
+        st.write("System under development")
 
     else:
         st.sidebar.warning("Please choose your role to access the system.")
